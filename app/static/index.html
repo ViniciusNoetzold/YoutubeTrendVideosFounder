@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Trend & Content Founder | Caçador de Tendências & IA</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c',
+            },
+            dark: {
+              950: '#060911',
+              900: '#090d16',
+              850: '#0d1322',
+              800: '#151d30',
+              700: '#1e293b',
+              600: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+
+  <!-- TOP NAVBAR -->
+  <header class="border-b border-dark-700/60 bg-dark-950/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('explore')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center shadow-lg shadow-red-600/30">
+          <i data-lucide="play" class="w-5 h-5 text-white fill-white ml-0.5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-lg tracking-tight text-white">YT Trend & Content</span>
+            <span class="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full">FOUNDER</span>
+          </div>
+          <p class="text-xs text-slate-400">Tendências • Palavras-chave • Referências • Roteiros IA</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 bg-dark-850 p-1 rounded-xl border border-dark-700/50">
+        <button onclick="switchTab('explore')" id="tab-btn-explore" class="nav-tab px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2 bg-red-600 text-white shadow-sm">
+          <i data-lucide="compass" class="w-4 h-4"></i>
+          <span>1. Explorar Nicho</span>
+        </button>
+        <button onclick="switchTab('generator')" id="tab-btn-generator" class="nav-tab px-4 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-dark-750 transition-all flex items-center space-x-2">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+          <span>2. Gerador & Roteiros</span>
+        </button>
+        <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="nav-tab px-4 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-dark-750 transition-all flex items-center space-x-2">
+          <i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>
+          <span>3. Cronograma Semanal</span>
+        </button>
+        <button onclick="switchTab('saved')" id="tab-btn-saved" class="nav-tab px-4 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-dark-750 transition-all flex items-center space-x-2">
+          <i data-lucide="bookmark" class="w-4 h-4 text-emerald-400"></i>
+          <span>4. Salvos</span>
+        </button>
+      </nav>
+
+      <!-- Header Right: Model Badge & Settings -->
+      <div class="flex items-center space-x-3">
+        <div class="hidden lg:flex items-center space-x-2 bg-dark-800/80 px-3 py-1.5 rounded-lg border border-dark-700 text-xs">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-slate-300">NVIDIA NIM:</span>
+          <span class="text-slate-100 font-mono font-semibold" id="top-model-name">Llama 3.2</span>
+        </div>
+        <button onclick="switchTab('settings')" class="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white border border-dark-700 transition" title="Configurações">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: EXPLORAR NICHO & TENDÊNCIAS         -->
+    <!-- ========================================== -->
+    <div id="tab-explore" class="tab-content space-y-6">
+      
+      <!-- HERO & NICHE PICKER -->
+      <div class="glass-panel p-6 rounded-2xl border border-dark-700 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                Descubra o que está em alta no seu nicho
+                <span class="text-xs px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 font-normal">Ao Vivo</span>
+              </h1>
+              <p class="text-slate-400 text-sm mt-1">Selecione ou digite o nicho do seu canal para minerar palavras-chave, tendências e links de referência.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="fetchDailyTrends()" class="px-4 py-2 bg-dark-800 hover:bg-dark-700 text-slate-200 text-xs font-semibold rounded-xl border border-dark-600 flex items-center gap-2 transition">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-400" id="refresh-icon"></i>
+                <span>Atualizar Tendências</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Niche Selection Pills -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nichos Populares:</label>
+            <div class="flex flex-wrap gap-2" id="niche-pills-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Custom Search Bar -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-2 border-t border-dark-750">
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </div>
+              <input type="text" id="niche-search-input" placeholder="Ou digite qualquer nicho ou tema (ex: inteligência artificial para criar vídeos, cortes de podcast, finanças...)"
+                class="w-full pl-10 pr-4 py-3 bg-dark-950 border border-dark-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+            </div>
+            <div class="flex gap-2">
+              <select id="filter-select" class="bg-dark-950 border border-dark-700 rounded-xl px-3 py-3 text-xs text-slate-300 focus:outline-none focus:border-red-500">
+                <option value="relevant">Mais Relevantes</option>
+                <option value="this_week">Recentes desta Semana</option>
+                <option value="views">Mais Visualizados</option>
+              </select>
+              <button onclick="searchCurrentNiche()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-red-600/25 flex items-center gap-2 transition transform active:scale-95">
+                <i data-lucide="flame" class="w-4 h-4"></i>
+                <span>Pesquisar</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MAIN EXPLORATION GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: TRENDING NOW & AUTOCOMPLETE KEYWORDS (4 Cols) -->
+        <div class="lg:col-span-4 space-y-6">
+
+          <!-- Real-Time Autocomplete Keywords -->
+          <div class="glass-panel p-5 rounded-2xl border border-dark-700">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
+                  <i data-lucide="key" class="w-4 h-4"></i>
+                </div>
+                <h2 class="font-bold text-sm text-white">Palavras-Chave em Alta</h2>
+              </div>
+              <button onclick="copyAllAutocompleteKeywords()" class="text-xs text-red-400 hover:text-red-300 font-medium flex items-center gap-1">
+                <i data-lucide="copy" class="w-3 h-3"></i> Copiar
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Termos reais que os usuários estão buscando agora no YouTube:</p>
+            
+            <div id="autocomplete-keywords-list" class="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1">
+              <span class="text-xs text-slate-500 italic">Pesquise um nicho para carregar termos em alta...</span>
+            </div>
+          </div>
+
+          <!-- Google Trends Today (Brazil) -->
+          <div class="glass-panel p-5 rounded-2xl border border-dark-700">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                  <i data-lucide="trending-up" class="w-4 h-4"></i>
+                </div>
+                <h2 class="font-bold text-sm text-white">Tendências do Dia (BR)</h2>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full font-mono">Google Trends</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Assuntos mais comentados e buscados hoje no país:</p>
+
+            <div id="daily-trends-list" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+              <div class="animate-pulse space-y-2">
+                <div class="h-10 bg-dark-800 rounded-lg"></div>
+                <div class="h-10 bg-dark-800 rounded-lg"></div>
+                <div class="h-10 bg-dark-800 rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: REFERENCE VIDEOS IN THIS NICHE (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+
+          <div class="glass-panel p-6 rounded-2xl border border-dark-700">
+            
+            <!-- Section Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dark-750 mb-5">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                  <i data-lucide="video" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h2 class="font-bold text-base text-white flex items-center gap-2">
+                    Vídeos de Referência & Oportunidades
+                    <span id="video-results-count" class="text-xs px-2 py-0.5 bg-dark-800 text-slate-300 rounded-full border border-dark-700">0 encontrados</span>
+                  </h2>
+                  <p class="text-xs text-slate-400">Analise o que já está funcionando para criar sua própria versão superior.</p>
+                </div>
+              </div>
+
+              <!-- AI Deep Analysis Button -->
+              <button onclick="runAiNicheAnalysis()" id="btn-run-ai-analysis" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-2 transition self-start sm:self-auto">
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+                <span>Análise de Oportunidades IA</span>
+              </button>
+            </div>
+
+            <!-- Reference Videos Grid -->
+            <div id="reference-videos-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Loading Skeleton / Empty State -->
+              <div class="col-span-2 text-center py-12 text-slate-500">
+                <i data-lucide="search" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                <p class="text-sm font-medium">Selecione um nicho acima para carregar vídeos de referência em alta.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- BOTTOM SECTION: AI SEO & CONTENT OPPORTUNITIES PANEL -->
+      <div id="ai-niche-panel" class="glass-panel p-6 rounded-2xl border border-dark-700 space-y-6 hidden">
+        <div class="flex items-center justify-between border-b border-dark-750 pb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-lg text-white">Relatório de Inteligência & SEO do Nicho (NVIDIA AI)</h2>
+              <p class="text-xs text-slate-400" id="ai-report-niche-label">Análise automatizada de palavras-chave, concorrência e temas virais.</p>
+            </div>
+          </div>
+          <button onclick="copyFullAiReport()" class="px-3 py-1.5 bg-dark-800 hover:bg-dark-700 text-slate-300 text-xs font-medium rounded-lg border border-dark-700 flex items-center gap-1.5 transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Relatório
+          </button>
+        </div>
+
+        <!-- 3 Columns for SEO Analysis -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <!-- Core Keywords -->
+          <div class="bg-dark-850 p-4 rounded-xl border border-dark-750">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="target" class="w-3.5 h-3.5 text-blue-400"></i> Palavras-Chave Principais
+              </h3>
+            </div>
+            <div id="ai-core-keywords" class="flex flex-wrap gap-1.5 mt-2"></div>
+          </div>
+
+          <!-- Long Tail Keywords -->
+          <div class="bg-dark-850 p-4 rounded-xl border border-dark-750">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="list-filter" class="w-3.5 h-3.5 text-emerald-400"></i> Cauda Longa (Alta Busca)
+              </h3>
+            </div>
+            <div id="ai-longtail-keywords" class="space-y-1.5 mt-2"></div>
+          </div>
+
+          <!-- Ready-to-use YouTube Tags -->
+          <div class="bg-dark-850 p-4 rounded-xl border border-dark-750">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-400"></i> Tags Prontas para o YouTube
+              </h3>
+              <button onclick="copyYoutubeTags()" class="text-[11px] text-purple-400 hover:text-purple-300 font-medium">Copiar Tags</button>
+            </div>
+            <p id="ai-youtube-tags" class="text-xs font-mono text-slate-400 bg-dark-950 p-2.5 rounded-lg border border-dark-800 break-words mt-2 max-h-24 overflow-y-auto">
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Hot Topics / Viral Video Angles -->
+        <div>
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="flame" class="w-4 h-4 text-red-500"></i> Temas & Ângulos com Alto Potencial de Visualizações
+          </h3>
+          <div id="ai-hot-topics-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: GERADOR IA & ROTEIROS               -->
+    <!-- ========================================== -->
+    <div id="tab-generator" class="tab-content space-y-6 hidden">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: Generator Controls (4 Cols) -->
+        <div class="lg:col-span-4 space-y-5">
+          <div class="glass-panel p-5 rounded-2xl border border-dark-700">
+            <h2 class="font-bold text-base text-white mb-4 flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i> Configurar Produção
+            </h2>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Nicho:</label>
+                <input type="text" id="gen-niche-input" class="w-full px-3 py-2 bg-dark-950 border border-dark-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Tema do Vídeo ou Ideia:</label>
+                <textarea id="gen-topic-input" rows="3" placeholder="Ex: 5 ferramentas secretas de IA que substituem horas de trabalho..."
+                  class="w-full px-3 py-2 bg-dark-950 border border-dark-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Tom de Voz & Estilo:</label>
+                <select id="gen-tone-select" class="w-full px-3 py-2 bg-dark-950 border border-dark-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-red-500">
+                  <option value="dinâmico, energético e direto ao ponto">Dinâmico & Energético (Estilo MrBeast / Tech)</option>
+                  <option value="educativo, claro e didático">Educativo & Didático (Estilo Tutorial)</option>
+                  <option value="storytelling cativante, mistério e curiosidade">Storytelling & Mistério (Estilo Dark / Documentário)</option>
+                  <option value="profissional, estratégico e persuasivo">Profissional & Negócios (Estilo Finanças)</option>
+                  <option value="descontraído, humor e cortes">Descontraído & Humor</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Links de Referência (Opcional):</label>
+                <input type="text" id="gen-reference-input" placeholder="https://youtube.com/watch?v=..."
+                  class="w-full px-3 py-2 bg-dark-950 border border-dark-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500">
+              </div>
+
+              <div class="pt-2 flex flex-col gap-2">
+                <button onclick="generateViralPackage()" id="btn-gen-package" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  <span>1. Gerar Títulos, Thumbs & Hook</span>
+                </button>
+
+                <button onclick="generateCompleteScript()" id="btn-gen-script" class="w-full py-3 bg-dark-800 hover:bg-dark-750 text-white font-semibold text-xs rounded-xl border border-dark-600 flex items-center justify-center gap-2 transition">
+                  <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i>
+                  <span>2. Gerar Roteiro Completo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Routine Tip Box (Matching User Image) -->
+          <div class="glass-panel p-4 rounded-2xl border border-blue-500/20 bg-blue-950/10">
+            <div class="flex items-center space-x-2 text-blue-400 mb-2">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <h3 class="text-xs font-bold uppercase tracking-wider">Seu Fluxo de Criação</h3>
+            </div>
+            <ul class="text-xs text-slate-300 space-y-1.5">
+              <li><span class="text-blue-400 font-semibold">• Segunda:</span> Palavras-chave, Estudar temas, Roteiro</li>
+              <li><span class="text-amber-400 font-semibold">• Terça:</span> Finalizar roteiro, Edição</li>
+              <li><span class="text-emerald-400 font-semibold">• Quarta:</span> Terminar Edição, Thumb & Título, Publicar</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Output Preview & Results (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+
+          <!-- VIRAL PACKAGE OUTPUT (Titles, Thumbs, Hook) -->
+          <div id="package-output-card" class="glass-panel p-6 rounded-2xl border border-dark-700 space-y-6 hidden">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-dark-750">
+              <h3 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                Pacote Viral Gerado
+              </h3>
+              <div class="flex gap-2">
+                <button onclick="addCurrentPackageToWeeklySchedule()" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-semibold rounded-lg border border-blue-500/30 flex items-center gap-1.5 transition">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Salvar na Semana
+                </button>
+              </div>
+            </div>
+
+            <!-- 5 High-CTR Titles -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">5 Sugestões de Títulos de Alto CTR:</label>
+              <div id="package-titles-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Thumbnail Concepts -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Conceitos Visuais de Thumbnail:</label>
+              <div id="package-thumbs-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- 15s Retention Hook -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Gancho Inicial de Retenção (0 a 15 Segundos):</label>
+              <div class="p-4 bg-dark-950 rounded-xl border border-dark-750">
+                <p id="package-hook-text" class="text-sm text-amber-200 font-medium italic"></p>
+                <div class="mt-2 flex justify-end">
+                  <button onclick="copyHookText()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                    <i data-lucide="copy" class="w-3 h-3"></i> Copiar Gancho
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Video Outline & Retention Tactics -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Estrutura Recomendada do Vídeo:</label>
+              <div id="package-outline-list" class="space-y-1.5 text-xs text-slate-300 font-mono bg-dark-950 p-3.5 rounded-xl border border-dark-800"></div>
+            </div>
+
+          </div>
+
+          <!-- FULL SCRIPT OUTPUT -->
+          <div id="script-output-card" class="glass-panel p-6 rounded-2xl border border-dark-700 space-y-4 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-dark-750">
+              <div>
+                <h3 class="font-bold text-base text-white flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-red-400"></i>
+                  Roteiro Completo do Vídeo
+                </h3>
+                <p class="text-xs text-slate-400" id="script-title-preview">Pronto para leitura ou gravação.</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="copyFullScript()" class="px-3 py-1.5 bg-dark-800 hover:bg-dark-700 text-slate-300 text-xs font-medium rounded-lg border border-dark-700 flex items-center gap-1.5 transition">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                </button>
+                <button onclick="downloadScriptFile('md')" class="px-3 py-1.5 bg-dark-800 hover:bg-dark-700 text-slate-300 text-xs font-medium rounded-lg border border-dark-700 flex items-center gap-1.5 transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Baixar .MD
+                </button>
+                <button onclick="saveCurrentScriptToDb()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition">
+                  <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Salvar Roteiro
+                </button>
+              </div>
+            </div>
+
+            <!-- Script Content Box -->
+            <div class="bg-dark-950 p-5 rounded-xl border border-dark-800 max-h-[550px] overflow-y-auto">
+              <div id="full-script-text" class="script-content text-sm text-slate-200 whitespace-pre-wrap leading-relaxed"></div>
+            </div>
+          </div>
+
+          <!-- Empty Generator Placeholder -->
+          <div id="generator-empty-state" class="glass-panel p-12 rounded-2xl border border-dark-700 text-center text-slate-500">
+            <i data-lucide="sparkles" class="w-14 h-14 mx-auto mb-3 opacity-30 text-amber-400"></i>
+            <h3 class="text-base font-semibold text-slate-300 mb-1">Gerador Pronto para Criar</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">Preencha o tema à esquerda ou clique em "⚡ Usar como Referência" em qualquer vídeo da aba de busca para gerar automaticamente títulos, thumbnail e roteiro.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 3: CRONOGRAMA SEMANAL (SEGUNDA-QUARTA) -->
+    <!-- ========================================== -->
+    <div id="tab-schedule" class="tab-content space-y-6 hidden">
+      
+      <!-- Header of Schedule -->
+      <div class="glass-panel p-6 rounded-2xl border border-dark-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-2xl font-extrabold text-white">Quadro Semanal de Produção</h1>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Seu Fluxo</span>
+          </div>
+          <p class="text-slate-400 text-xs mt-1">Organizado de acordo com a sua rotina de 3 dias para lançar vídeos com consistência.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openNewTaskModal()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-md flex items-center gap-2 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Nova Tarefa / Vídeo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 COLUMN KANBAN (Segunda, Terça, Quarta) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- COLUNA 1: SEGUNDA -->
+        <div class="glass-panel col-segunda rounded-2xl p-5 border border-dark-700 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-dark-750 mb-4">
+            <div>
+              <span class="text-xs font-mono font-bold text-blue-400 tracking-wider">DIA 1</span>
+              <h2 class="text-lg font-extrabold text-white">SEGUNDA</h2>
+            </div>
+            <span id="count-segunda" class="text-xs px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-semibold">0 itens</span>
+          </div>
+
+          <!-- Routine Steps Header -->
+          <div class="mb-4 bg-dark-950 p-2.5 rounded-xl border border-dark-800 text-[11px] text-slate-300 space-y-1">
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-blue-400"></i> Pesquisar palavras-chaves</div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-blue-400"></i> Estudar temas</div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-blue-400"></i> Roteiro (Rascunho)</div>
+          </div>
+
+          <!-- Tasks List -->
+          <div id="tasks-list-segunda" class="space-y-3 flex-1 min-h-[300px]">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- COLUNA 2: TERÇA -->
+        <div class="glass-panel col-terca rounded-2xl p-5 border border-dark-700 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-dark-750 mb-4">
+            <div>
+              <span class="text-xs font-mono font-bold text-amber-400 tracking-wider">DIA 2</span>
+              <h2 class="text-lg font-extrabold text-white">TERÇA</h2>
+            </div>
+            <span id="count-terca" class="text-xs px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full font-semibold">0 itens</span>
+          </div>
+
+          <!-- Routine Steps Header -->
+          <div class="mb-4 bg-dark-950 p-2.5 rounded-xl border border-dark-800 text-[11px] text-slate-300 space-y-1">
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-amber-400"></i> Finalizar roteiro</div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-amber-400"></i> Gravação & Edição</div>
+          </div>
+
+          <!-- Tasks List -->
+          <div id="tasks-list-terca" class="space-y-3 flex-1 min-h-[300px]">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- COLUNA 3: QUARTA -->
+        <div class="glass-panel col-quarta rounded-2xl p-5 border border-dark-700 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-dark-750 mb-4">
+            <div>
+              <span class="text-xs font-mono font-bold text-emerald-400 tracking-wider">DIA 3</span>
+              <h2 class="text-lg font-extrabold text-white">QUARTA</h2>
+            </div>
+            <span id="count-quarta" class="text-xs px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-semibold">0 itens</span>
+          </div>
+
+          <!-- Routine Steps Header -->
+          <div class="mb-4 bg-dark-950 p-2.5 rounded-xl border border-dark-800 text-[11px] text-slate-300 space-y-1">
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-emerald-400"></i> Terminar Edição</div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-emerald-400"></i> Thumbnail e Título</div>
+            <div class="flex items-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5 text-emerald-400"></i> Publicar Vídeo 🚀</div>
+          </div>
+
+          <!-- Tasks List -->
+          <div id="tasks-list-quarta" class="space-y-3 flex-1 min-h-[300px]">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 4: MEUS CONTEÚDOS SALVOS               -->
+    <!-- ========================================== -->
+    <div id="tab-saved" class="tab-content space-y-6 hidden">
+      
+      <div class="glass-panel p-6 rounded-2xl border border-dark-700">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-dark-750">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Meus Roteiros & Ideias Salvas</h1>
+            <p class="text-xs text-slate-400 mt-1">Acesse todos os roteiros, pacotes de títulos e ideias guardadas no banco local.</p>
+          </div>
+          <button onclick="loadSavedContents()" class="p-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-slate-300 border border-dark-700">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="saved-scripts-container" class="space-y-4">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 5: CONFIGURAÇÕES & API                 -->
+    <!-- ========================================== -->
+    <div id="tab-settings" class="tab-content space-y-6 hidden">
+      
+      <div class="max-w-2xl mx-auto glass-panel p-6 rounded-2xl border border-dark-700 space-y-6">
+        <div class="flex items-center space-x-3 pb-4 border-b border-dark-750">
+          <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-white">Configurações & Conexão IA</h1>
+            <p class="text-xs text-slate-400">Gerencie a chave da API NVIDIA NIM e status dos serviços.</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Chave da API NVIDIA NIM:</label>
+            <div class="flex gap-2">
+              <input type="password" id="settings-api-key-input" placeholder="nvapi-..."
+                class="flex-1 px-3 py-2 bg-dark-950 border border-dark-700 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500 font-mono">
+              <button onclick="saveApiKeySettings()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-xl transition">
+                Salvar Chave
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">A chave fornecida já está ativa e configurada no servidor.</p>
+          </div>
+
+          <div class="p-4 bg-dark-950 rounded-xl border border-dark-800 space-y-2 text-xs">
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Status do Backend:</span>
+              <span class="text-emerald-400 font-semibold flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Online (FastAPI)</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Modelos com Failover:</span>
+              <span class="text-slate-400 font-mono text-[11px]">Llama 3.2 Vision / Gemma 26B / Kimi</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>Armazenamento Local:</span>
+              <span class="text-blue-400 font-mono">SQLite (trends_app.db)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: ADD CUSTOM TASK TO WEEKLY SCHEDULE -->
+  <div id="modal-task" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-dark-950 border border-dark-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-dark-750">
+        <h3 class="font-bold text-white text-base">Adicionar Item ao Cronograma</h3>
+        <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Dia da Semana:</label>
+          <select id="modal-task-day" class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-xl text-white">
+            <option value="segunda">Segunda-feira (Palavras-chave, Estudo, Roteiro)</option>
+            <option value="terca">Terça-feira (Finalizar Roteiro, Edição)</option>
+            <option value="quarta">Quarta-feira (Terminar Edição, Thumb & Título, Publicar)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Título do Vídeo ou Tarefa:</label>
+          <input type="text" id="modal-task-title" placeholder="Ex: Vídeo sobre 5 IAs secretas" class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-xl text-white">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Etapa:</label>
+          <input type="text" id="modal-task-step" placeholder="Ex: Pesquisar palavras chaves / Estudar temas / Roteiro" class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-xl text-white">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Links de Referência (Opcional):</label>
+          <input type="text" id="modal-task-links" placeholder="https://youtube.com/watch?v=..." class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-xl text-white">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3">
+        <button onclick="closeNewTaskModal()" class="px-4 py-2 bg-dark-800 hover:bg-dark-700 text-slate-300 text-xs rounded-xl">Cancelar</button>
+        <button onclick="submitNewTask()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl">Salvar Tarefa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 pointer-events-none transition-all duration-300 transform translate-y-8 opacity-0">
+    <div class="bg-dark-950 border border-dark-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+      <div id="toast-icon" class="text-emerald-400"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+      <span id="toast-message" class="text-xs font-medium">Ação concluída com sucesso!</span>
+    </div>
+  </div>
+
+  <!-- APP JAVASCRIPT -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
