@@ -55,11 +55,17 @@ async def get_daily_trends(geo: str = 'BR'):
     }
 
 @app.get('/api/trends/niche')
-async def get_niche_trends(query: str = Query(..., description='Niche query'), filter: str = 'relevant'):
-    videos = search_youtube_niche(query, filter)
+async def get_niche_trends(
+    query: str = Query(..., description='Niche query'),
+    filter: str = 'relevant',
+    content_type: str = 'all'
+):
+    videos = search_youtube_niche(query, date_filter=filter, content_type=content_type)
     autocomplete = get_youtube_autocomplete_keywords(query)
     return {
         'query': query,
+        'filter': filter,
+        'content_type': content_type,
         'videos': videos,
         'autocomplete_keywords': autocomplete
     }

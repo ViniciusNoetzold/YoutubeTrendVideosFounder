@@ -5,7 +5,11 @@ let appState = {
   niches: [],
   selectedNiche: null,
   currentQuery: '',
+  currentContentType: 'all',
+  currentDateFilter: 'relevant',
+  currentTrendSubtab: 'yt_trending',
   dailyGoogleTrends: [],
+  youtubeTrending: [],
   referenceVideos: [],
   autocompleteKeywords: [],
   currentAiAnalysis: null,
@@ -18,7 +22,7 @@ let appState = {
 // Initialize App
 document.addEventListener('DOMContentLoaded', async () => {
   await loadNiches();
-  await fetchDailyTrends();
+  await refreshAllTrends();
   await loadWeeklyTasks();
   lucide.createIcons();
 });
@@ -41,7 +45,7 @@ function showToast(message, isError = false) {
   setTimeout(() => {
     toast.classList.add('translate-y-8', 'opacity-0');
     toast.classList.remove('translate-y-0', 'opacity-100');
-  }, 3000);
+  }, 3200);
 }
 
 // Copy Helper
@@ -88,6 +92,45 @@ function switchTab(tabId) {
   lucide.createIcons();
 }
 
+// Sub-tabs for Trends: YouTube Em Alta vs Google Trends
+function switchTrendSubtab(subtabId) {
+  appState.currentTrendSubtab = subtabId;
+  
+  const btnYt = document.getElementById('subtab-btn-yt');
+  const btnGoogle = document.getElementById('subtab-btn-google');
+  const containerYt = document.getElementById('subtab-yt_trending');
+  const containerGoogle = document.getElementById('subtab-google_trends');
+  
+  if (subtabId === 'yt_trending') {
+    btnYt.className = 'pb-2 text-xs font-semibold text-red-400 border-b-2 border-red-500 flex items-center gap-1';
+    btnGoogle.className = 'pb-2 text-xs font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-1';
+    containerYt.classList.remove('hidden');
+    containerGoogle.classList.add('hidden');
+  } else {
+    btnGoogle.className = 'pb-2 text-xs font-semibold text-blue-400 border-b-2 border-blue-500 flex items-center gap-1';
+    btnYt.className = 'pb-2 text-xs font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-1';
+    containerGoogle.classList.remove('hidden');
+    containerYt.classList.add('hidden');
+  }
+  lucide.createIcons();
+}
+
+// Set Content Type (All, Videos, Shorts, Lives)
+function setContentType(type) {
+  appState.currentContentType = type;
+  
+  document.querySelectorAll('.ctype-btn').forEach(btn => {
+    btn.className = 'ctype-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 hover:text-white hover:bg-dark-800 transition flex items-center gap-1.5';
+  });
+  
+  const activeBtn = document.getElementById(`ctype-${type}`);
+  if (activeBtn) {
+    activeBtn.className = 'ctype-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 text-white transition flex items-center gap-1.5 shadow-md shadow-red-600/20';
+  }
+  
+  searchCurrentNiche();
+}
+
 // Load Pre-configured Niches
 async function loadNiches() {
   try {
@@ -96,8 +139,7 @@ async function loadNiches() {
     appState.niches = data.niches || [];
     renderNichePills();
     
-    // Auto select first niche
-    if (appState.niches.length > 0) {
+    if (appState.niches.length > 0 && !appState.selectedNiche) {
       selectNiche(appState.niches[0]);
     }
   } catch (err) {
@@ -136,44 +178,107 @@ function selectNiche(niche) {
   searchCurrentNiche();
 }
 
-// Fetch Daily Google Trends
-async function fetchDailyTrends() {
+// Refresh ALL Trends & Search
+async function refreshAllTrends() {
   const refreshIcon = document.getElementById('refresh-icon');
+  const btnText = document.getElementById('refresh-btn-text');
   if (refreshIcon) refreshIcon.classList.add('animate-spin');
+  if (btnText) btnText.textContent = 'Atualizando...';
   
   try {
     const res = await fetch('/api/trends/daily?geo=BR');
     const data = await res.json();
     appState.dailyGoogleTrends = data.google_trends || [];
-    renderDailyTrends();
+    appState.youtubeTrending = data.youtube_trends || [];
+    
+    renderYouTubeTrendingList();
+    renderGoogleTrendsList();
+    
+    // Also refresh current niche search
+    await searchCurrentNiche();
+    
+    const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    showToast(`Tendências atualizadas com sucesso às ${now}!`);
   } catch (err) {
     console.error('Error fetching daily trends:', err);
+    showToast('Erro ao atualizar tendências.', true);
   } finally {
     if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+    if (btnText) btnText.textContent = 'Atualizar Tendências';
   }
 }
 
-function renderDailyTrends() {
-  const listEl = document.getElementById('daily-trends-list');
+// Render YouTube Em Alta Brasil (Trending Videos with Thumbnails & Views)
+function renderYouTubeTrendingList() {
+  const listEl = document.getElementById('subtab-yt_trending');
+  if (!listEl) return;
+  
+  if (appState.youtubeTrending.length === 0) {
+    listEl.innerHTML = '<p class="text-xs text-slate-500 italic p-3">Nenhum vídeo em alta retornado no momento.</p>';
+    return;
+  }
+  
+  listEl.innerHTML = appState.youtubeTrending.slice(0, 15).map((v, idx) => `
+    <div class="p-2.5 bg-dark-850 hover:bg-dark-800 rounded-xl border border-dark-750 transition flex items-center justify-between gap-2.5 group">
+      <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+        <span class="text-xs font-mono font-bold text-red-500 w-4 flex-shrink-0">${idx + 1}.</span>
+        <div class="w-12 h-8 rounded-lg overflow-hidden bg-dark-950 flex-shrink-0 relative">
+          <img src="${v.thumbnail}" alt="" class="w-full h-full object-cover">
+        </div>
+        <div class="min-w-0 flex-1">
+          <h4 class="text-xs font-semibold text-slate-200 truncate group-hover:text-white" title="${v.title}">${v.title}</h4>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+            <span class="truncate max-w-[90px] text-slate-300">${v.channel}</span>
+            <span>•</span>
+            <span class="text-red-400 font-medium">${v.views}</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center space-x-1 flex-shrink-0">
+        <button onclick="useVideoAsReference('${v.title.replace(/'/g, "\\'")}', '${v.url}')" class="p-1.5 bg-dark-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-lg transition" title="Criar Roteiro">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+        </button>
+        <a href="${v.url}" target="_blank" class="p-1.5 text-slate-400 hover:text-white" title="Ver no YouTube">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </div>
+  `).join('');
+  
+  lucide.createIcons();
+}
+
+// Render Google Trends with News Headlines (Explains why it is trending!)
+function renderGoogleTrendsList() {
+  const listEl = document.getElementById('subtab-google_trends');
   if (!listEl) return;
   
   if (appState.dailyGoogleTrends.length === 0) {
-    listEl.innerHTML = '<p class="text-xs text-slate-500 italic">Nenhuma tendência carregada no momento.</p>';
+    listEl.innerHTML = '<p class="text-xs text-slate-500 italic p-3">Nenhum termo do Google Trends disponível.</p>';
     return;
   }
   
   listEl.innerHTML = appState.dailyGoogleTrends.map((t, idx) => `
-    <div class="p-2.5 bg-dark-850 hover:bg-dark-800 rounded-xl border border-dark-750 transition flex items-center justify-between group">
-      <div class="flex items-center space-x-2 min-w-0 pr-2">
-        <span class="text-xs font-mono font-bold text-slate-500 w-4">${idx + 1}.</span>
-        <span class="text-xs font-semibold text-slate-200 truncate group-hover:text-white capitalize">${t.title}</span>
+    <div class="p-3 bg-dark-850 hover:bg-dark-800 rounded-xl border border-dark-750 transition space-y-1.5 group">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 min-w-0 pr-2">
+          <span class="text-xs font-mono font-bold text-blue-400 w-4">${idx + 1}.</span>
+          <span class="text-xs font-bold text-white capitalize group-hover:text-blue-300">${t.title}</span>
+        </div>
+        <div class="flex items-center space-x-1.5 flex-shrink-0">
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-mono font-semibold">${t.traffic}</span>
+          <button onclick="useTopicAsIdea('${t.title.replace(/'/g, "\\'")}')" class="p-1 text-slate-400 hover:text-amber-400" title="Usar como tema">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
-      <div class="flex items-center space-x-1.5 flex-shrink-0">
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">${t.traffic}</span>
-        <button onclick="useTopicAsIdea('${t.title.replace(/'/g, "\\'")}')" class="p-1 text-slate-400 hover:text-amber-400" title="Usar como tema">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
+
+      ${t.headline ? `
+        <div class="text-[11px] text-slate-400 bg-dark-950 p-2 rounded-lg border border-dark-800 flex items-start gap-1.5">
+          <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0"></i>
+          <span class="leading-snug line-clamp-2">${t.headline} <strong class="text-slate-500">(${t.source || 'Notícia'})</strong></span>
+        </div>
+      ` : ''}
     </div>
   `).join('');
   
@@ -184,22 +289,24 @@ function renderDailyTrends() {
 async function searchCurrentNiche() {
   const query = document.getElementById('niche-search-input').value.trim();
   const filter = document.getElementById('filter-select').value;
+  const ctype = appState.currentContentType || 'all';
   if (!query) return;
 
   appState.currentQuery = query;
+  appState.currentDateFilter = filter;
   const container = document.getElementById('reference-videos-container');
   const countEl = document.getElementById('video-results-count');
   
-  // Show loading skeleton
+  // Show loading spinner
   container.innerHTML = `
-    <div class="col-span-2 space-y-4 py-8 text-center">
+    <div class="col-span-2 space-y-3 py-12 text-center">
       <div class="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-xs text-slate-400">Varrendo o YouTube em busca dos vídeos e palavras-chave mais quentes em "${query}"...</p>
+      <p class="text-xs text-slate-400">Varrendo o YouTube para "${query}" (${ctype.toUpperCase()} • ${filter})...</p>
     </div>
   `;
 
   try {
-    const res = await fetch(`/api/trends/niche?query=${encodeURIComponent(query)}&filter=${filter}`);
+    const res = await fetch(`/api/trends/niche?query=${encodeURIComponent(query)}&filter=${filter}&content_type=${ctype}`);
     const data = await res.json();
     
     appState.referenceVideos = data.videos || [];
@@ -254,56 +361,71 @@ function renderReferenceVideos() {
   
   if (appState.referenceVideos.length === 0) {
     container.innerHTML = `
-      <div class="col-span-2 text-center py-8 text-slate-500">
-        <p class="text-xs">Nenhum vídeo retornado para esta busca. Tente outras palavras-chave.</p>
+      <div class="col-span-2 text-center py-12 text-slate-500 space-y-2">
+        <i data-lucide="search-x" class="w-10 h-10 mx-auto opacity-30"></i>
+        <p class="text-xs">Nenhum resultado para este filtro específico. Tente mudar o filtro de data ou formato acima.</p>
       </div>
     `;
+    lucide.createIcons();
     return;
   }
   
-  container.innerHTML = appState.referenceVideos.map(v => `
-    <div class="video-card bg-dark-850 border border-dark-750 rounded-2xl overflow-hidden flex flex-col justify-between">
-      <div>
-        <!-- Thumbnail -->
-        <div class="relative aspect-video bg-dark-950 overflow-hidden group">
-          <img src="${v.thumbnail}" alt="${v.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'">
-          ${v.duration ? `<span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold">${v.duration}</span>` : ''}
-          <a href="${v.url}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
-            <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-              <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
+  container.innerHTML = appState.referenceVideos.map(v => {
+    const isLive = v.is_live;
+    const isShort = v.is_short;
+    
+    return `
+      <div class="video-card bg-dark-850 border ${isLive ? 'border-red-500/40' : 'border-dark-750'} rounded-2xl overflow-hidden flex flex-col justify-between">
+        <div>
+          <!-- Thumbnail & Badges -->
+          <div class="relative ${isShort ? 'aspect-[9/14] max-h-72 mx-auto' : 'aspect-video'} bg-dark-950 overflow-hidden group">
+            <img src="${v.thumbnail}" alt="${v.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'">
+            
+            <!-- Type Badges -->
+            <div class="absolute top-2 left-2 flex gap-1">
+              ${isLive ? `<span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-lg animate-pulse"><i data-lucide="radio" class="w-3 h-3"></i> AO VIVO</span>` : ''}
+              ${isShort ? `<span class="bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-lg"><i data-lucide="smartphone" class="w-3 h-3"></i> SHORTS</span>` : ''}
             </div>
-          </a>
-        </div>
 
-        <!-- Video Info -->
-        <div class="p-4 space-y-2">
-          <h3 class="text-xs font-bold text-white line-clamp-2 hover:text-red-400 transition" title="${v.title}">
-            ${v.title}
-          </h3>
-          
-          <div class="flex items-center justify-between text-[11px] text-slate-400">
-            <span class="font-medium text-slate-300 truncate max-w-[140px]">${v.channel}</span>
-            <div class="flex items-center gap-2">
-              <span class="text-red-400 font-semibold">${v.views}</span>
-              <span>•</span>
-              <span>${v.published}</span>
+            ${v.duration ? `<span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold">${v.duration}</span>` : ''}
+            
+            <a href="${v.url}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
+              <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
+              </div>
+            </a>
+          </div>
+
+          <!-- Video Info -->
+          <div class="p-4 space-y-2">
+            <h3 class="text-xs font-bold text-white line-clamp-2 hover:text-red-400 transition" title="${v.title}">
+              ${v.title}
+            </h3>
+            
+            <div class="flex items-center justify-between text-[11px] text-slate-400">
+              <span class="font-medium text-slate-300 truncate max-w-[130px]">${v.channel}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-red-400 font-semibold">${v.views}</span>
+                <span>•</span>
+                <span>${v.published}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="p-3 bg-dark-900/60 border-t border-dark-750 flex items-center gap-2">
-        <button onclick="useVideoAsReference('${v.title.replace(/'/g, "\\'")}', '${v.url}')" class="flex-1 py-1.5 px-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-          <span>Gerar Roteiro / Ideia</span>
-        </button>
-        <a href="${v.url}" target="_blank" class="p-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white border border-dark-700" title="Ver no YouTube">
-          <i data-lucide="external-link" class="w-4 h-4"></i>
-        </a>
+        <!-- Action Buttons -->
+        <div class="p-3 bg-dark-900/60 border-t border-dark-750 flex items-center gap-2">
+          <button onclick="useVideoAsReference('${v.title.replace(/'/g, "\\'")}', '${v.url}')" class="flex-1 py-1.5 px-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Gerar Roteiro / Ideia</span>
+          </button>
+          <a href="${v.url}" target="_blank" class="p-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white border border-dark-700" title="Ver no YouTube">
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+          </a>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   
   lucide.createIcons();
 }
