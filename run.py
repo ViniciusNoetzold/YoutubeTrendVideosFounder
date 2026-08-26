@@ -1,10 +1,33 @@
 import os
 import sys
+import subprocess
 import webbrowser
 import threading
 import time
-import uvicorn
 
+# Auto-check and install dependencies if missing
+REQUIRED_PACKAGES = ["fastapi", "uvicorn", "httpx", "pydantic"]
+
+def ensure_dependencies():
+    missing = []
+    for pkg in REQUIRED_PACKAGES:
+        try:
+            __import__(pkg)
+        except ImportError:
+            missing.append(pkg)
+            
+    if missing:
+        print(f"[*] Instalando dependencias necessarias: {', '.join(missing)}...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "--quiet"])
+            print("[+] Dependencias instaladas com sucesso!\n")
+        except Exception as e:
+            print(f"[!] Erro ao instalar dependencias: {e}")
+            print("[!] Tente rodar manualmente: pip install -r requirements.txt")
+
+ensure_dependencies()
+
+import uvicorn
 from app.services.database import init_db, get_tasks, create_task
 
 def seed_initial_weekly_tasks():
@@ -39,10 +62,10 @@ def seed_initial_weekly_tasks():
             niche="Tecnologia & IA",
             details="Publicar no melhor horário (18:00h)"
         )
-        print("Tabela semanal inicial configurada com sucesso!")
+        print("[+] Cronograma semanal inicial configurado com sucesso!")
 
 def open_browser():
-    time.sleep(1.5)
+    time.sleep(1.8)
     url = "http://localhost:8000"
     print(f"\n[+] Abrindo a aplicacao no navegador: {url}\n")
     webbrowser.open(url)
@@ -50,13 +73,13 @@ def open_browser():
 if __name__ == "__main__":
     seed_initial_weekly_tasks()
     
-    # Start browser in separate background thread
+    # Inicia o navegador em thread de fundo
     threading.Thread(target=open_browser, daemon=True).start()
     
     print("="*65)
-    print(" YOUTUBE TREND & CONTENT FOUNDER - ONLINE")
-    print(" Acesse no seu navegador: http://localhost:8000")
-    print(" Pressione CTRL+C para encerrar o servidor")
+    print(" 🚀 YOUTUBE TREND & CONTENT FOUNDER - ONLINE")
+    print(" 🌐 Acesse no seu navegador: http://localhost:8000")
+    print(" 🛑 Pressione CTRL+C para encerrar o servidor")
     print("="*65)
     
     uvicorn.run("app.main:app", host="127.0.0.1", port=8000, log_level="info")
