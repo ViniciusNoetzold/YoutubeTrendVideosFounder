@@ -39,30 +39,35 @@ Aplicação web completa desenvolvida para automatizar a pesquisa de conteúdo n
 
 ---
 
-## ⚡ Instalação & Execução
+### Deploy no Render.com
+
+O projeto está configurado para deploy imediato no [Render.com](https://render.com/):
+
+- **Build Command**: `./build.sh` (ou `pip install -r requirements.txt`)
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Environment**: Python `3.11.8`
+
+> 💡 **Nota sobre o Start Command no Render**: Se o Render preencher por padrão `gunicorn your_application.wsgi`, o projeto já conta com um adaptador integrado (`your_application/wsgi.py`) para evitar erros, mas o comando recomendado é `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+
+---
+
+## ⚡ Execução Local
 
 ### Pré-requisitos
 - Python 3.10 ou superior instalado no sistema.
 
-### 1. Clonar o Repositório
-```bash
-git clone https://github.com/ViniciusNoetzold/YoutubeTrendVideosFounder.git
-cd YoutubeTrendVideosFounder
-```
-
-### 2. Instalar as Dependências
+### 1. Instalar as Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Iniciar a Aplicação
+### 2. Iniciar a Aplicação
 No Windows, basta dar dois cliques em `start.bat` ou executar:
 ```bash
 python run.py
 ```
 
-A aplicação abrirá automaticamente no seu navegador no endereço:
-👉 `http://localhost:8000`
+Acesse no navegador: **http://localhost:8000**
 
 ---
 
