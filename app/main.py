@@ -41,6 +41,14 @@ app.mount('/static', StaticFiles(directory=static_dir), name='static')
 async def root():
     return FileResponse(os.path.join(static_dir, 'index.html'))
 
+@app.get('/mezzold-logo.png')
+async def get_mezzold_logo():
+    return FileResponse(os.path.join(static_dir, 'mezzold-logo.png'))
+
+@app.get('/favicon.ico')
+async def get_favicon():
+    return FileResponse(os.path.join(static_dir, 'mezzold-logo.png'))
+
 @app.get('/api/niches')
 async def get_niches():
     return {'niches': POPULAR_NICHES}

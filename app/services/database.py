@@ -64,6 +64,7 @@ def init_db():
     
     conn.commit()
     conn.close()
+    seed_initial_weekly_tasks()
 
 def get_setting(key, default=None):
     conn = get_connection()
@@ -178,3 +179,37 @@ def delete_task(task_id):
     c.execute("DELETE FROM production_tasks WHERE id = ?", (task_id,))
     conn.commit()
     conn.close()
+
+def seed_initial_weekly_tasks():
+    existing = get_tasks()
+    if not existing:
+        create_task(
+            day_column="segunda",
+            step_name="Pesquisar palavras chaves & Estudar temas",
+            title="Mapear tendencias de IA & Produtividade da semana",
+            niche="Tecnologia & IA",
+            details="Usar a ferramenta para extrair tags de alto volume e 5 temas virais"
+        )
+        create_task(
+            day_column="segunda",
+            step_name="Roteiro",
+            title="Escrever Gancho (0-15s) e Estrutura Principal",
+            niche="Tecnologia & IA",
+            details="Focar em retencao de publico com open loops nos primeiros minutos"
+        )
+        create_task(
+            day_column="terca",
+            step_name="Finalizar roteiro & Edicao",
+            title="Revisao final do roteiro e Gravacao de B-Rolls",
+            niche="Tecnologia & IA",
+            details="Aplicar SFX e cortes rapidos a cada 5 segundos"
+        )
+        create_task(
+            day_column="quarta",
+            step_name="Terminar Edicao & Thumb/Titulo",
+            title="Gerar 5 titulos CTR e Thumbnail de alto contraste",
+            niche="Tecnologia & IA",
+            details="Publicar no melhor horario (18:00h)"
+        )
+        print("[+] Cronograma semanal inicial configurado com sucesso!")
+
